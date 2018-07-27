@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+/*
+서버 상태를 전송하는 프로토콜임
+Mac 주소를 키로 사용함
+Float 는 소수점 2자리까지 사용
+*/
+message server_status {
+  string mac = 1;
+  string ip = 2;
+  string hostname = 3;
+  string cpu_rate = 4;  // CPU 는 여러개일 수 있으므로 string으로 처리
+  float memory_rate = 5;
+}
