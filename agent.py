@@ -5,12 +5,43 @@
 
 import sys
 import logging
+import netifaces
 import configparser
 from logging.handlers import RotatingFileHandler
 
+import psutil
 import elasticsearch
 
 import statics
+import protocol_pb2
+
+
+def cpu_perf():
+    return psutil.cpu_percent(interval=1, percpu=True)
+
+
+def mem_perf():
+    return psutil.virtual_memory(), psutil.swap_memory()
+
+
+def disk_perf():
+    disk_uasge: map = {}
+    for mount in psutil.disk_partitions():
+        disk_uasge[mount] = psutil.disk_usage(mount)
+
+    return disk_uasge
+
+
+def boottime_perf():
+    return psutil.boot_time()
+
+
+def mac_perf():
+    for interface in netifaces.interfaces():
+        if 'lo' == interface or 'local' in interface:
+            continue
+        return netifaces.ifaddresses(interface)[netifaces.AF_LINK]['addr']
+    return ''
 
 
 def get_elasticsearch_config(es_ip: str):
@@ -28,6 +59,20 @@ def get_elasticsearch_config(es_ip: str):
             return_config[config_val['_id']] = config_val['_source']['config_val']
 
         yield return_config
+
+
+def perf(ip_addr):
+    perf_pdu = protocol_pb2.server_status()
+    perf_pdu.ip = ip_addr
+    # TODO add hostname
+    # perf_pdu.hostname
+    for cpu_rate in cpu_perf():
+        perf_pdu.cpu_idle_rate.append(cpu_rate)
+    perf_pdu.memory_rate
+    disk_part, disk_usage = disk_perf()
+    for directory in disk_part:
+        perf_pdu.disk[directory] = disk_usage[directory]
+
 
 
 if __name__ == '__main__':
@@ -68,3 +113,4 @@ if __name__ == '__main__':
 
     logger.debug(f'elasticsearch config setted {next(es_config)}')
 
+    print()
