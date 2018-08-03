@@ -4,6 +4,7 @@
 # CPU, Mem, disk 등을 수집합니다.
 
 import sys
+import time
 import logging
 import netifaces
 import configparser
@@ -51,15 +52,20 @@ def get_elasticsearch_config(es_ip: str):
             "terms": {"_id": ["agent_kafka_ip", "agent_term"]}
         }
     }
-    while True:
-        return_config = {}
+
+    return_config = {}
+    try:
         res = es.search(index="config", body=query)
-        logger.info(f"get elasticsearch config {res['hits']['total']} hits:")
-        for config_val in res['hits']['hits']:
-            return_config[config_val['_id']] = config_val['_source']['config_val']
+    except elasticsearch.exceptions.NotFoundError:
+        del es
+        return {}
 
-        yield return_config
+    logger.info(f"get elasticsearch config {res['hits']['total']} hits:")
+    for config_val in res['hits']['hits']:
+        return_config[config_val['_id']] = config_val['_source']['config_val']
 
+    del es
+    return return_config
 
 def perf(ip_addr):
     perf_pdu = protocol_pb2.server_status()
@@ -72,7 +78,6 @@ def perf(ip_addr):
     disk_part, disk_usage = disk_perf()
     for directory in disk_part:
         perf_pdu.disk[directory] = disk_usage[directory]
-
 
 
 if __name__ == '__main__':
@@ -107,10 +112,20 @@ if __name__ == '__main__':
         logger.error('Get elasticsearch ip fail from config [es-config.conf] run initialize.py or setting conf file')
         sys.exit(-1)
 
+    # 최초 시작시에만 E/S 를 통해서 config 가져와야 할것 같음
+    # TODO config 에 의존하지 않고 데이터를 가져올 방법이 있을까?
     logger.info(f'Elasticsearch IP setted {es_ip}')
-    global es_config
-    es_config = get_elasticsearch_config(es_ip)
 
-    logger.debug(f'elasticsearch config setted {next(es_config)}')
+    es_config: dict = {}
+    while 'agent_kafka_ip' not in es_config:
+        es_config = get_elasticsearch_config(es_ip)
 
+        logger.debug(f'elasticsearch config setted {es_config}')
+        if 'agent_kafka_ip' not in es_config.keys():
+            logger.error(f'elasticsearch config not setted! please set {es_ip}/config/doc/agent_kafka_ip')
+            time.sleep(60)
+
+    # TODO kafka 를 이용해서 register 하는 로직 추가
+    
+    # TODO kafka 를 이용해서 register 결과물 받는 로직 추가
     print()

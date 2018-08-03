@@ -19,28 +19,28 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=_b('\n\"Total-Server-Manage/protocol.proto\"\xc7\x01\n\rserver_status\x12\x0b\n\x03mac\x18\x01 \x01(\t\x12\n\n\x02ip\x18\x02 \x01(\t\x12\x10\n\x08hostname\x18\x03 \x01(\t\x12\x15\n\rcpu_idle_rate\x18\x04 \x03(\x02\x12\x13\n\x0bmemory_rate\x18\x05 \x01(\x02\x12.\n\x08projects\x18\x06 \x03(\x0b\x32\x1c.server_status.ProjectsEntry\x1a/\n\rProjectsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x04:\x02\x38\x01\x62\x06proto3')
+  serialized_pb=_b('\n\"Total-Server-Manage/protocol.proto\"\xbb\x01\n\rserver_status\x12\x0b\n\x03mac\x18\x01 \x01(\t\x12\n\n\x02ip\x18\x02 \x01(\t\x12\x10\n\x08hostname\x18\x03 \x01(\t\x12\x15\n\rcpu_idle_rate\x18\x04 \x03(\x02\x12\x13\n\x0bmemory_rate\x18\x05 \x01(\x02\x12&\n\x04\x64isk\x18\x06 \x03(\x0b\x32\x18.server_status.DiskEntry\x1a+\n\tDiskEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x04:\x02\x38\x01\"\x1d\n\x0e\x61gent_register\x12\x0b\n\x03mac\x18\x01 \x01(\t\"(\n\x14\x61gent_register_reply\x12\x10\n\x08\x61gent_id\x18\x01 \x01(\t\"\x1a\n\x18\x61gent_setting_propertiesb\x06proto3')
 )
 
 
 
 
-_SERVER_STATUS_PROJECTSENTRY = _descriptor.Descriptor(
-  name='ProjectsEntry',
-  full_name='server_status.ProjectsEntry',
+_SERVER_STATUS_DISKENTRY = _descriptor.Descriptor(
+  name='DiskEntry',
+  full_name='server_status.DiskEntry',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='key', full_name='server_status.ProjectsEntry.key', index=0,
+      name='key', full_name='server_status.DiskEntry.key', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='value', full_name='server_status.ProjectsEntry.value', index=1,
+      name='value', full_name='server_status.DiskEntry.value', index=1,
       number=2, type=4, cpp_type=4, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
@@ -58,8 +58,8 @@ _SERVER_STATUS_PROJECTSENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=191,
-  serialized_end=238,
+  serialized_start=183,
+  serialized_end=226,
 )
 
 _SERVER_STATUS = _descriptor.Descriptor(
@@ -105,7 +105,7 @@ _SERVER_STATUS = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='projects', full_name='server_status.projects', index=5,
+      name='disk', full_name='server_status.disk', index=5,
       number=6, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
@@ -114,7 +114,7 @@ _SERVER_STATUS = _descriptor.Descriptor(
   ],
   extensions=[
   ],
-  nested_types=[_SERVER_STATUS_PROJECTSENTRY, ],
+  nested_types=[_SERVER_STATUS_DISKENTRY, ],
   enum_types=[
   ],
   serialized_options=None,
@@ -124,20 +124,109 @@ _SERVER_STATUS = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=39,
-  serialized_end=238,
+  serialized_end=226,
 )
 
-_SERVER_STATUS_PROJECTSENTRY.containing_type = _SERVER_STATUS
-_SERVER_STATUS.fields_by_name['projects'].message_type = _SERVER_STATUS_PROJECTSENTRY
+
+_AGENT_REGISTER = _descriptor.Descriptor(
+  name='agent_register',
+  full_name='agent_register',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='mac', full_name='agent_register.mac', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=228,
+  serialized_end=257,
+)
+
+
+_AGENT_REGISTER_REPLY = _descriptor.Descriptor(
+  name='agent_register_reply',
+  full_name='agent_register_reply',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='agent_id', full_name='agent_register_reply.agent_id', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=259,
+  serialized_end=299,
+)
+
+
+_AGENT_SETTING_PROPERTIES = _descriptor.Descriptor(
+  name='agent_setting_properties',
+  full_name='agent_setting_properties',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=301,
+  serialized_end=327,
+)
+
+_SERVER_STATUS_DISKENTRY.containing_type = _SERVER_STATUS
+_SERVER_STATUS.fields_by_name['disk'].message_type = _SERVER_STATUS_DISKENTRY
 DESCRIPTOR.message_types_by_name['server_status'] = _SERVER_STATUS
+DESCRIPTOR.message_types_by_name['agent_register'] = _AGENT_REGISTER
+DESCRIPTOR.message_types_by_name['agent_register_reply'] = _AGENT_REGISTER_REPLY
+DESCRIPTOR.message_types_by_name['agent_setting_properties'] = _AGENT_SETTING_PROPERTIES
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 server_status = _reflection.GeneratedProtocolMessageType('server_status', (_message.Message,), dict(
 
-  ProjectsEntry = _reflection.GeneratedProtocolMessageType('ProjectsEntry', (_message.Message,), dict(
-    DESCRIPTOR = _SERVER_STATUS_PROJECTSENTRY,
+  DiskEntry = _reflection.GeneratedProtocolMessageType('DiskEntry', (_message.Message,), dict(
+    DESCRIPTOR = _SERVER_STATUS_DISKENTRY,
     __module__ = 'Total_Server_Manage.protocol_pb2'
-    # @@protoc_insertion_point(class_scope:server_status.ProjectsEntry)
+    # @@protoc_insertion_point(class_scope:server_status.DiskEntry)
     ))
   ,
   DESCRIPTOR = _SERVER_STATUS,
@@ -145,8 +234,29 @@ server_status = _reflection.GeneratedProtocolMessageType('server_status', (_mess
   # @@protoc_insertion_point(class_scope:server_status)
   ))
 _sym_db.RegisterMessage(server_status)
-_sym_db.RegisterMessage(server_status.ProjectsEntry)
+_sym_db.RegisterMessage(server_status.DiskEntry)
+
+agent_register = _reflection.GeneratedProtocolMessageType('agent_register', (_message.Message,), dict(
+  DESCRIPTOR = _AGENT_REGISTER,
+  __module__ = 'Total_Server_Manage.protocol_pb2'
+  # @@protoc_insertion_point(class_scope:agent_register)
+  ))
+_sym_db.RegisterMessage(agent_register)
+
+agent_register_reply = _reflection.GeneratedProtocolMessageType('agent_register_reply', (_message.Message,), dict(
+  DESCRIPTOR = _AGENT_REGISTER_REPLY,
+  __module__ = 'Total_Server_Manage.protocol_pb2'
+  # @@protoc_insertion_point(class_scope:agent_register_reply)
+  ))
+_sym_db.RegisterMessage(agent_register_reply)
+
+agent_setting_properties = _reflection.GeneratedProtocolMessageType('agent_setting_properties', (_message.Message,), dict(
+  DESCRIPTOR = _AGENT_SETTING_PROPERTIES,
+  __module__ = 'Total_Server_Manage.protocol_pb2'
+  # @@protoc_insertion_point(class_scope:agent_setting_properties)
+  ))
+_sym_db.RegisterMessage(agent_setting_properties)
 
 
-_SERVER_STATUS_PROJECTSENTRY._options = None
+_SERVER_STATUS_DISKENTRY._options = None
 # @@protoc_insertion_point(module_scope)
