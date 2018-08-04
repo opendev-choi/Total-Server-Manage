@@ -32,7 +32,7 @@ message agent_register {
 agent_id 는 sequential 하게 계산하여 return 함
 */
 message agent_register_reply {
-  string agent_id = 1;
+  int32 agent_id = 1;
 }
 
 /*

@@ -65,3 +65,5 @@ if __name__ == '__main__':
         print('config file changed! end program')
     else:
         print('nothing change settings... end program')
+
+    # TODO add agent_kafka_ip setting

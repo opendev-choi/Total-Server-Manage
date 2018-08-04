@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=_b('\n\"Total-Server-Manage/protocol.proto\"\xbb\x01\n\rserver_status\x12\x0b\n\x03mac\x18\x01 \x01(\t\x12\n\n\x02ip\x18\x02 \x01(\t\x12\x10\n\x08hostname\x18\x03 \x01(\t\x12\x15\n\rcpu_idle_rate\x18\x04 \x03(\x02\x12\x13\n\x0bmemory_rate\x18\x05 \x01(\x02\x12&\n\x04\x64isk\x18\x06 \x03(\x0b\x32\x18.server_status.DiskEntry\x1a+\n\tDiskEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x04:\x02\x38\x01\"\x1d\n\x0e\x61gent_register\x12\x0b\n\x03mac\x18\x01 \x01(\t\"(\n\x14\x61gent_register_reply\x12\x10\n\x08\x61gent_id\x18\x01 \x01(\t\"\x1a\n\x18\x61gent_setting_propertiesb\x06proto3')
+  serialized_pb=_b('\n\"Total-Server-Manage/protocol.proto\"\xbb\x01\n\rserver_status\x12\x0b\n\x03mac\x18\x01 \x01(\t\x12\n\n\x02ip\x18\x02 \x01(\t\x12\x10\n\x08hostname\x18\x03 \x01(\t\x12\x15\n\rcpu_idle_rate\x18\x04 \x03(\x02\x12\x13\n\x0bmemory_rate\x18\x05 \x01(\x02\x12&\n\x04\x64isk\x18\x06 \x03(\x0b\x32\x18.server_status.DiskEntry\x1a+\n\tDiskEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x04:\x02\x38\x01\"\x1d\n\x0e\x61gent_register\x12\x0b\n\x03mac\x18\x01 \x01(\t\"(\n\x14\x61gent_register_reply\x12\x10\n\x08\x61gent_id\x18\x01 \x01(\x05\x62\x06proto3')
 )
 
 
@@ -168,8 +168,8 @@ _AGENT_REGISTER_REPLY = _descriptor.Descriptor(
   fields=[
     _descriptor.FieldDescriptor(
       name='agent_id', full_name='agent_register_reply.agent_id', index=0,
-      number=1, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=_b("").decode('utf-8'),
+      number=1, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
@@ -189,36 +189,11 @@ _AGENT_REGISTER_REPLY = _descriptor.Descriptor(
   serialized_end=299,
 )
 
-
-_AGENT_SETTING_PROPERTIES = _descriptor.Descriptor(
-  name='agent_setting_properties',
-  full_name='agent_setting_properties',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  fields=[
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  serialized_options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=301,
-  serialized_end=327,
-)
-
 _SERVER_STATUS_DISKENTRY.containing_type = _SERVER_STATUS
 _SERVER_STATUS.fields_by_name['disk'].message_type = _SERVER_STATUS_DISKENTRY
 DESCRIPTOR.message_types_by_name['server_status'] = _SERVER_STATUS
 DESCRIPTOR.message_types_by_name['agent_register'] = _AGENT_REGISTER
 DESCRIPTOR.message_types_by_name['agent_register_reply'] = _AGENT_REGISTER_REPLY
-DESCRIPTOR.message_types_by_name['agent_setting_properties'] = _AGENT_SETTING_PROPERTIES
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 server_status = _reflection.GeneratedProtocolMessageType('server_status', (_message.Message,), dict(
@@ -249,13 +224,6 @@ agent_register_reply = _reflection.GeneratedProtocolMessageType('agent_register_
   # @@protoc_insertion_point(class_scope:agent_register_reply)
   ))
 _sym_db.RegisterMessage(agent_register_reply)
-
-agent_setting_properties = _reflection.GeneratedProtocolMessageType('agent_setting_properties', (_message.Message,), dict(
-  DESCRIPTOR = _AGENT_SETTING_PROPERTIES,
-  __module__ = 'Total_Server_Manage.protocol_pb2'
-  # @@protoc_insertion_point(class_scope:agent_setting_properties)
-  ))
-_sym_db.RegisterMessage(agent_setting_properties)
 
 
 _SERVER_STATUS_DISKENTRY._options = None

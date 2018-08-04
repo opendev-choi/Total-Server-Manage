@@ -10,6 +10,7 @@ import netifaces
 import configparser
 from logging.handlers import RotatingFileHandler
 
+import kafka
 import psutil
 import elasticsearch
 
@@ -41,7 +42,7 @@ def mac_perf():
     for interface in netifaces.interfaces():
         if 'lo' == interface or 'local' in interface:
             continue
-        return netifaces.ifaddresses(interface)[netifaces.AF_LINK]['addr']
+        return netifaces.ifaddresses(interface)[netifaces.AF_LINK][0]['addr']
     return ''
 
 
@@ -67,6 +68,34 @@ def get_elasticsearch_config(es_ip: str):
     del es
     return return_config
 
+
+def kafka_produce(kafka_ip):
+    producer: kafka.KafkaProducer = kafka.KafkaProducer(bootstrap_servers=kafka_ip)
+    while True:
+        produce_protobuf = yield
+        future = producer.send('from_agent', produce_protobuf)
+
+        try:
+            record_metadata = future.get(timeout=10)
+            logger.debug(record_metadata)
+        except kafka.KafkaError as kafka_e:
+            logger.error(f'Produce Fail! cause {kafka_e}')
+
+
+def kafka_consume(kafka_ip, mac_address):
+    consumer: kafka.KafkaConsumer = kafka.KafkaConsumer('to_agent',
+                                                        bootstrap_servers=kafka_ip,
+                                                        consumer_timeout_ms=10000)
+    while True:
+        for message in consumer:
+            print("%s:%d:%d: key=%s value=%s" % (message.topic, message.partition,
+                                                 message.offset, message.key,
+                                                 message.value))
+            if mac_address.encode() in message.value:
+                yield message.value.replace(mac_address.encode(), b'')
+        yield None
+
+
 def perf(ip_addr):
     perf_pdu = protocol_pb2.server_status()
     perf_pdu.ip = ip_addr
@@ -74,13 +103,14 @@ def perf(ip_addr):
     # perf_pdu.hostname
     for cpu_rate in cpu_perf():
         perf_pdu.cpu_idle_rate.append(cpu_rate)
+    # TODO memory swap으로? 아님 virtual로?
     perf_pdu.memory_rate
     disk_part, disk_usage = disk_perf()
     for directory in disk_part:
         perf_pdu.disk[directory] = disk_usage[directory]
 
 
-if __name__ == '__main__':
+def default_setting():
     # Logging 세팅
     global logger
     # logger: logging.Logger
@@ -106,12 +136,16 @@ if __name__ == '__main__':
     # config: configparser.ConfigParser
     config = configparser.ConfigParser()
     config.read(statics.config_file_name)
+
+
+if __name__ == '__main__':
+    default_setting()
+
     try:
         es_ip: str = config.get(statics.config_elastic_section_name, "address")
     except configparser.Error:
         logger.error('Get elasticsearch ip fail from config [es-config.conf] run initialize.py or setting conf file')
         sys.exit(-1)
-
     # 최초 시작시에만 E/S 를 통해서 config 가져와야 할것 같음
     # TODO config 에 의존하지 않고 데이터를 가져올 방법이 있을까?
     logger.info(f'Elasticsearch IP setted {es_ip}')
@@ -125,7 +159,22 @@ if __name__ == '__main__':
             logger.error(f'elasticsearch config not setted! please set {es_ip}/config/doc/agent_kafka_ip')
             time.sleep(60)
 
-    # TODO kafka 를 이용해서 register 하는 로직 추가
-    
-    # TODO kafka 를 이용해서 register 결과물 받는 로직 추가
-    print()
+    register_protobuf: protocol_pb2.agent_register = protocol_pb2.agent_register()
+    register_protobuf.mac = mac_perf()
+
+    global kafka_pro
+    kafka_pro = kafka_produce(es_config['agent_kafka_ip'])
+    next(kafka_pro)
+    kafka_pro.send(b'REG' + register_protobuf.SerializeToString())
+    global kafka_con
+    kafka_con = kafka_consume(es_config['agent_kafka_ip'], register_protobuf.mac)
+    registration_data = None
+    while not registration_data:
+        registration_data = next(kafka_con)
+
+    logger.info('register finished!')
+    agent_data = protocol_pb2.agent_register_reply()
+    agent_data.ParseFromString(registration_data)
+    global agent_id
+    agent_id = agent_data.agent_id
+    logger.info(f'initialize end! agent no {agent_id}')
