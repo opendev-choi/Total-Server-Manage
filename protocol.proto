@@ -10,12 +10,18 @@ Mac 주소를 키로 사용함
 Float 는 소수점 2자리까지 사용
 */
 message server_status {
-  string mac = 1;
+  message disk {
+    string disk_mount = 1;
+    uint64 disk_total = 2;
+    uint64 disk_use = 3;
+  }
+  int32 agent_id = 1;
   string ip = 2;
   string hostname = 3;
   repeated float cpu_idle_rate = 4;  // CPU 는 여러개일 수 있으므로 repeated 로 처리
-  float memory_rate = 5;
-  map<string, uint64> disk = 6; // disk 는 partion, 용량으로 구성
+  float memory_total = 5;
+  float memory_use = 6;
+  repeated disk disk_list = 7; // disk 는 partion, 용량으로 구성
 }
 
 /*

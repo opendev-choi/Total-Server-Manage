@@ -5,7 +5,9 @@
 
 import sys
 import time
+import socket
 import logging
+import datetime
 import netifaces
 import configparser
 from logging.handlers import RotatingFileHandler
@@ -23,15 +25,20 @@ def cpu_perf():
 
 
 def mem_perf():
-    return psutil.virtual_memory(), psutil.swap_memory()
+    return psutil.virtual_memory()
 
 
 def disk_perf():
-    disk_uasge: map = {}
+    disk_list: list = []
     for mount in psutil.disk_partitions():
-        disk_uasge[mount] = psutil.disk_usage(mount)
+        disk = protocol_pb2.server_status.disk()
+        disk.disk_mount = mount.mountpoint
 
-    return disk_uasge
+        disk.disk_total = psutil.disk_usage(disk.disk_mount).total
+        disk.disk_use = psutil.disk_usage(disk.disk_mount).used
+        disk_list.append(disk)
+
+    return disk_list
 
 
 def boottime_perf():
@@ -72,8 +79,8 @@ def get_elasticsearch_config(es_ip: str):
 def kafka_produce(kafka_ip):
     producer: kafka.KafkaProducer = kafka.KafkaProducer(bootstrap_servers=kafka_ip)
     while True:
-        produce_protobuf = yield
-        future = producer.send('from_agent', produce_protobuf)
+        produce_protobuf, topic = yield
+        future = producer.send(topic, produce_protobuf)
 
         try:
             record_metadata = future.get(timeout=10)
@@ -88,7 +95,7 @@ def kafka_consume(kafka_ip, mac_address):
                                                         consumer_timeout_ms=10000)
     while True:
         for message in consumer:
-            print("%s:%d:%d: key=%s value=%s" % (message.topic, message.partition,
+            logger.debug("%s:%d:%d: key=%s value=%s" % (message.topic, message.partition,
                                                  message.offset, message.key,
                                                  message.value))
             if mac_address.encode() in message.value:
@@ -96,18 +103,23 @@ def kafka_consume(kafka_ip, mac_address):
         yield None
 
 
-def perf(ip_addr):
+def perf():
     perf_pdu = protocol_pb2.server_status()
-    perf_pdu.ip = ip_addr
-    # TODO add hostname
-    # perf_pdu.hostname
+    perf_pdu.ip = socket.gethostbyname(socket.gethostname())
+    perf_pdu.hostname = socket.gethostname()
     for cpu_rate in cpu_perf():
         perf_pdu.cpu_idle_rate.append(cpu_rate)
-    # TODO memory swap으로? 아님 virtual로?
-    perf_pdu.memory_rate
-    disk_part, disk_usage = disk_perf()
-    for directory in disk_part:
-        perf_pdu.disk[directory] = disk_usage[directory]
+    memory = mem_perf()
+    perf_pdu.memory_total = memory.total
+    perf_pdu.memory_use = memory.used
+    disk_usage = disk_perf()
+    for disk_list in disk_usage:
+        disk = perf_pdu.disk_list.add()
+        disk.disk_mount = disk_list.disk_mount
+        disk.disk_total = disk_list.disk_total
+        disk.disk_use = disk_list.disk_use
+
+    return perf_pdu
 
 
 def default_setting():
@@ -138,9 +150,7 @@ def default_setting():
     config.read(statics.config_file_name)
 
 
-if __name__ == '__main__':
-    default_setting()
-
+def initialize():
     try:
         es_ip: str = config.get(statics.config_elastic_section_name, "address")
     except configparser.Error:
@@ -150,7 +160,8 @@ if __name__ == '__main__':
     # TODO config 에 의존하지 않고 데이터를 가져올 방법이 있을까?
     logger.info(f'Elasticsearch IP setted {es_ip}')
 
-    es_config: dict = {}
+    global es_config
+    es_config = {}
     while 'agent_kafka_ip' not in es_config:
         es_config = get_elasticsearch_config(es_ip)
 
@@ -165,7 +176,7 @@ if __name__ == '__main__':
     global kafka_pro
     kafka_pro = kafka_produce(es_config['agent_kafka_ip'])
     next(kafka_pro)
-    kafka_pro.send(b'REG' + register_protobuf.SerializeToString())
+    kafka_pro.send([b'REG' + register_protobuf.SerializeToString(), 'from_agent'])
     global kafka_con
     kafka_con = kafka_consume(es_config['agent_kafka_ip'], register_protobuf.mac)
     registration_data = None
@@ -178,3 +189,24 @@ if __name__ == '__main__':
     global agent_id
     agent_id = agent_data.agent_id
     logger.info(f'initialize end! agent no {agent_id}')
+
+
+if __name__ == '__main__':
+    default_setting()
+    initialize()
+
+    agent_term: int = 60
+    if 'agent_term' in es_config.keys():
+        agent_term = int(es_config['agent_term'])
+
+    now_time = datetime.datetime.now()
+    # 수집이 일정하게 되지 않게 하기 위해서 agent_id 를 term으로 나눠
+    # term에 균등하게 나누어서 수집
+    time_elapse_sec = now_time.hour * 60 * 60 + now_time.minute * 60 + now_time.second + agent_id
+    logger.info(f'collet wait until {time_elapse_sec % agent_term} second')
+    time.sleep(time_elapse_sec % agent_term)
+
+    while True:
+        kafka_pro.send([perf().SerializeToString(), 'agent_data'])
+        logger.info('Server Data Sended!')
+        time.sleep(60)

@@ -163,5 +163,6 @@ if __name__ == "__main__":
         else:
             # 등록 되어있으면 해당 agent_no 전송
             echo_pdu.agent_id = is_exist
+        logger.info(f'agent_id {echo_pdu.agent_id} is register at {datetime.datetime.now()}')
         time.sleep(0.5)
         kafka_pro.send(reg_pdu.mac.encode() + echo_pdu.SerializeToString())
