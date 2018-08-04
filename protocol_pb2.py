@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=_b('\n\"Total-Server-Manage/protocol.proto\"\xea\x01\n\rserver_status\x12\x10\n\x08\x61gent_id\x18\x01 \x01(\x05\x12\n\n\x02ip\x18\x02 \x01(\t\x12\x10\n\x08hostname\x18\x03 \x01(\t\x12\x15\n\rcpu_idle_rate\x18\x04 \x03(\x02\x12\x14\n\x0cmemory_total\x18\x05 \x01(\x02\x12\x12\n\nmemory_use\x18\x06 \x01(\x02\x12&\n\tdisk_list\x18\x07 \x03(\x0b\x32\x13.server_status.disk\x1a@\n\x04\x64isk\x12\x12\n\ndisk_mount\x18\x01 \x01(\t\x12\x12\n\ndisk_total\x18\x02 \x01(\x04\x12\x10\n\x08\x64isk_use\x18\x03 \x01(\x04\"\x1d\n\x0e\x61gent_register\x12\x0b\n\x03mac\x18\x01 \x01(\t\"(\n\x14\x61gent_register_reply\x12\x10\n\x08\x61gent_id\x18\x01 \x01(\x05\x62\x06proto3')
+  serialized_pb=_b('\n\"Total-Server-Manage/protocol.proto\"\x83\x02\n\rserver_status\x12\x10\n\x08\x61gent_id\x18\x01 \x01(\x05\x12\n\n\x02ip\x18\x02 \x01(\t\x12\x10\n\x08hostname\x18\x03 \x01(\t\x12\x15\n\rcpu_idle_rate\x18\x04 \x03(\x02\x12\x14\n\x0cmemory_total\x18\x05 \x01(\x02\x12\x12\n\nmemory_use\x18\x06 \x01(\x02\x12&\n\tdisk_list\x18\x07 \x03(\x0b\x32\x13.server_status.disk\x12\x17\n\x0f\x63ollection_time\x18\x08 \x01(\t\x1a@\n\x04\x64isk\x12\x12\n\ndisk_mount\x18\x01 \x01(\t\x12\x12\n\ndisk_total\x18\x02 \x01(\x04\x12\x10\n\x08\x64isk_use\x18\x03 \x01(\x04\"\x1d\n\x0e\x61gent_register\x12\x0b\n\x03mac\x18\x01 \x01(\t\"(\n\x14\x61gent_register_reply\x12\x10\n\x08\x61gent_id\x18\x01 \x01(\x05\x62\x06proto3')
 )
 
 
@@ -65,8 +65,8 @@ _SERVER_STATUS_DISK = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=209,
-  serialized_end=273,
+  serialized_start=234,
+  serialized_end=298,
 )
 
 _SERVER_STATUS = _descriptor.Descriptor(
@@ -125,6 +125,13 @@ _SERVER_STATUS = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='collection_time', full_name='server_status.collection_time', index=7,
+      number=8, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -138,7 +145,7 @@ _SERVER_STATUS = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=39,
-  serialized_end=273,
+  serialized_end=298,
 )
 
 
@@ -168,8 +175,8 @@ _AGENT_REGISTER = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=275,
-  serialized_end=304,
+  serialized_start=300,
+  serialized_end=329,
 )
 
 
@@ -199,8 +206,8 @@ _AGENT_REGISTER_REPLY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=306,
-  serialized_end=346,
+  serialized_start=331,
+  serialized_end=371,
 )
 
 _SERVER_STATUS_DISK.containing_type = _SERVER_STATUS

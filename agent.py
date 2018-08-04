@@ -105,6 +105,7 @@ def kafka_consume(kafka_ip, mac_address):
 
 def perf():
     perf_pdu = protocol_pb2.server_status()
+    perf_pdu.agent_id = agent_id
     perf_pdu.ip = socket.gethostbyname(socket.gethostname())
     perf_pdu.hostname = socket.gethostname()
     for cpu_rate in cpu_perf():
@@ -145,7 +146,6 @@ def default_setting():
     logger.info("agent start")
 
     global config
-    # config: configparser.ConfigParser
     config = configparser.ConfigParser()
     config.read(statics.config_file_name)
 
@@ -202,11 +202,21 @@ if __name__ == '__main__':
     now_time = datetime.datetime.now()
     # 수집이 일정하게 되지 않게 하기 위해서 agent_id 를 term으로 나눠
     # term에 균등하게 나누어서 수집
-    time_elapse_sec = now_time.hour * 60 * 60 + now_time.minute * 60 + now_time.second + agent_id
-    logger.info(f'collet wait until {time_elapse_sec % agent_term} second')
-    time.sleep(time_elapse_sec % agent_term)
+    time_elapse_sec = now_time.hour * 60 * 60 + now_time.minute * 60 + now_time.second
+
+    logger.info(f'collet wait until {agent_term - (time_elapse_sec % agent_term) + (agent_id % agent_term)} second')
+    standard_time = now_time + \
+                    datetime.timedelta(seconds=agent_term - (time_elapse_sec % agent_term))
+
+    time.sleep(agent_term - (time_elapse_sec % agent_term) + (agent_id % agent_term))
 
     while True:
-        kafka_pro.send([perf().SerializeToString(), 'agent_data'])
-        logger.info('Server Data Sended!')
-        time.sleep(60)
+        time_s = datetime.datetime.now()
+        perf_data = perf()
+        perf_data.collection_time = standard_time.strftime('%Y%m%d%H%M%S')
+        kafka_pro.send([perf_data.SerializeToString(), 'agent_data'])
+        elapse_sec = (datetime.datetime.now() - time_s).total_seconds()
+        logger.info(f'{perf_data.collection_time} collection end! server data collect elapse {elapse_sec:.2f} seconds')
+        time.sleep(agent_term - elapse_sec)
+
+        standard_time += datetime.timedelta(seconds=agent_term)

@@ -86,13 +86,15 @@ def register_agent(mac, seq):
         'timestamp': datetime.datetime.now(),
     }
     res = es.index(index="agent_list", doc_type='doc', id=mac, body=doc)
-    print(res['result'])
+    if res['result'] not in ['created, updated']:
+        logger.error('elasticsearch agent_list create/update fail')
 
     doc = {
         'config_val': seq
     }
     res = es.index(index="config", doc_type='doc', id='last_seq', body=doc)
-    print(res['result'])
+    if res['result'] not in ['created, updated']:
+        logger.error('elasticsearch sequence update create/update fail')
 
 
 def get_elasticsearch_config():
@@ -115,9 +117,7 @@ def get_elasticsearch_config():
     return return_config
 
 
-if __name__ == "__main__":
-    default_setting()
-
+def initialize():
     try:
         es_ip: str = config.get(statics.config_elastic_section_name, "address")
     except configparser.Error:
@@ -133,7 +133,8 @@ if __name__ == "__main__":
     es = elasticsearch.Elasticsearch(es_ip)
     es_seq = get_last_seq()
 
-    es_config: dict = {}
+    global es_config
+    es_config = {}
     while 'agent_kafka_ip' not in es_config:
         es_config = get_elasticsearch_config()
 
@@ -142,11 +143,20 @@ if __name__ == "__main__":
             logger.error(f'elasticsearch config not setted! please set {es_ip}/config/doc/agent_kafka_ip')
             time.sleep(60)
 
+
+def connect_kafka():
     global kafka_con
     global kafka_pro
     kafka_con = kafka_consume(es_config['agent_kafka_ip'])
     kafka_pro = kafka_produce(es_config['agent_kafka_ip'])
     next(kafka_pro)
+
+
+if __name__ == "__main__":
+    default_setting()
+    initialize()
+    connect_kafka()
+
     while True:
         reg_data = next(kafka_con)
         reg_pdu = protocol_pb2.agent_register()

@@ -22,6 +22,7 @@ message server_status {
   float memory_total = 5;
   float memory_use = 6;
   repeated disk disk_list = 7; // disk 는 partion, 용량으로 구성
+  string collection_time = 8; // YYYYMMDDHHMMSS
 }
 
 /*
@@ -40,7 +41,3 @@ agent_id 는 sequential 하게 계산하여 return 함
 message agent_register_reply {
   int32 agent_id = 1;
 }
-
-/*
-에이전트 세팅을 일정 시간마다 분배하는 프로토콜
-*/
