@@ -23,21 +23,21 @@ from include import exceptions
 
 class Performance:
     @staticmethod
-    def cpu_perf():
+    def cpu_perf() -> list:
         try:
             return psutil.cpu_percent(interval=1, percpu=True)
         except psutil.Error as e:
-            raise exceptions.PerfFailException(f'mem_perf fail cause {e!s}')
+            raise exceptions.PerfFailException(f'cpu_perf fail cause {e!s}')
 
     @staticmethod
-    def mem_perf():
+    def mem_perf() -> psutil._psplatform.svmem:
         try:
             return psutil.virtual_memory()
         except psutil.Error as e:
             raise exceptions.PerfFailException(f'mem_perf fail cause {e!s}')
 
     @staticmethod
-    def disk_perf():
+    def disk_perf() -> list:
         try:
             disk_list: list = []
             for mount in psutil.disk_partitions():
@@ -53,14 +53,14 @@ class Performance:
             raise exceptions.PerfFailException(f'disk_perf fail cause {e!s}')
 
     @staticmethod
-    def boottime_perf():
+    def boottime_perf() -> float:
         try:
             return psutil.boot_time()
         except psutil.Error as e:
             raise exceptions.PerfFailException(f'boottime_perf fail cause {e!s}')
 
     @staticmethod
-    def mac_perf():
+    def mac_perf() -> str:
         for interface in netifaces.interfaces():
             if 'lo' == interface or 'local' in interface:
                 continue
