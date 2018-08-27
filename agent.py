@@ -16,43 +16,61 @@ import kafka
 import psutil
 import elasticsearch
 
-from ..include import statics
-from ..include import protocol_pb2
-
-def cpu_perf():
-    return psutil.cpu_percent(interval=1, percpu=True)
+from include import statics
+from include import protocol_pb2
+from include import exceptions
 
 
-def mem_perf():
-    return psutil.virtual_memory()
+class Performance:
+    @staticmethod
+    def cpu_perf():
+        try:
+            return psutil.cpu_percent(interval=1, percpu=True)
+        except psutil.Error as e:
+            raise exceptions.PerfFailException(f'mem_perf fail cause {e!s}')
+
+    @staticmethod
+    def mem_perf():
+        try:
+            return psutil.virtual_memory()
+        except psutil.Error as e:
+            raise exceptions.PerfFailException(f'mem_perf fail cause {e!s}')
+
+    @staticmethod
+    def disk_perf():
+        try:
+            disk_list: list = []
+            for mount in psutil.disk_partitions():
+                disk = protocol_pb2.server_status.disk()
+                disk.disk_mount = mount.mountpoint
+
+                disk.disk_total = psutil.disk_usage(disk.disk_mount).total
+                disk.disk_use = psutil.disk_usage(disk.disk_mount).used
+                disk_list.append(disk)
+
+            return disk_list
+        except psutil.Error as e:
+            raise exceptions.PerfFailException(f'disk_perf fail cause {e!s}')
+
+    @staticmethod
+    def boottime_perf():
+        try:
+            return psutil.boot_time()
+        except psutil.Error as e:
+            raise exceptions.PerfFailException(f'boottime_perf fail cause {e!s}')
+
+    @staticmethod
+    def mac_perf():
+        for interface in netifaces.interfaces():
+            if 'lo' == interface or 'local' in interface:
+                continue
+            return netifaces.ifaddresses(interface)[netifaces.AF_LINK][0]['addr']
+        raise exceptions.PerfFailException(
+            f'Perf fail at get mac address, cannot find interface without \'lo\' or \'local\' in interface name,'
+            f'interface list[{netifaces.interfaces()}]')
 
 
-def disk_perf():
-    disk_list: list = []
-    for mount in psutil.disk_partitions():
-        disk = protocol_pb2.server_status.disk()
-        disk.disk_mount = mount.mountpoint
-
-        disk.disk_total = psutil.disk_usage(disk.disk_mount).total
-        disk.disk_use = psutil.disk_usage(disk.disk_mount).used
-        disk_list.append(disk)
-
-    return disk_list
-
-
-def boottime_perf():
-    return psutil.boot_time()
-
-
-def mac_perf():
-    for interface in netifaces.interfaces():
-        if 'lo' == interface or 'local' in interface:
-            continue
-        return netifaces.ifaddresses(interface)[netifaces.AF_LINK][0]['addr']
-    return ''
-
-
-def get_elasticsearch_config(es_ip: str):
+def get_elasticsearch_config(es_ip: str) -> dict:
     es = elasticsearch.Elasticsearch(es_ip)
     query: map = {
         "query": {
@@ -75,7 +93,7 @@ def get_elasticsearch_config(es_ip: str):
     return return_config
 
 
-def kafka_produce(kafka_ip):
+def kafka_produce(kafka_ip) -> None:
     producer: kafka.KafkaProducer = kafka.KafkaProducer(bootstrap_servers=kafka_ip)
     while True:
         produce_protobuf, topic = yield
@@ -88,7 +106,7 @@ def kafka_produce(kafka_ip):
             logger.error(f'Produce Fail! cause {kafka_e}')
 
 
-def kafka_consume(kafka_ip, mac_address):
+def kafka_consume(kafka_ip, mac_address) -> None:
     consumer: kafka.KafkaConsumer = kafka.KafkaConsumer('to_agent',
                                                         bootstrap_servers=kafka_ip,
                                                         consumer_timeout_ms=10000)
@@ -102,17 +120,22 @@ def kafka_consume(kafka_ip, mac_address):
         yield None
 
 
-def perf():
+def perf() -> protocol_pb2.server_status:
     perf_pdu = protocol_pb2.server_status()
     perf_pdu.agent_id = agent_id
+    # get address data
     perf_pdu.ip = socket.gethostbyname(socket.gethostname())
     perf_pdu.hostname = socket.gethostname()
-    for cpu_rate in cpu_perf():
+
+    # cpu/mem perf
+    for cpu_rate in Performance.cpu_perf():
         perf_pdu.cpu_idle_rate.append(cpu_rate)
-    memory = mem_perf()
+    memory = Performance.mem_perf()
     perf_pdu.memory_total = memory.total
     perf_pdu.memory_use = memory.used
-    disk_usage = disk_perf()
+
+    # disk
+    disk_usage = Performance.disk_perf()
     for disk_list in disk_usage:
         disk = perf_pdu.disk_list.add()
         disk.disk_mount = disk_list.disk_mount
@@ -170,7 +193,7 @@ def initialize():
             time.sleep(60)
 
     register_protobuf: protocol_pb2.agent_register = protocol_pb2.agent_register()
-    register_protobuf.mac = mac_perf()
+    register_protobuf.mac = Performance.mac_perf()
 
     global kafka_pro
     kafka_pro = kafka_produce(es_config['agent_kafka_ip'])
@@ -203,7 +226,7 @@ if __name__ == '__main__':
     # term에 균등하게 나누어서 수집
     time_elapse_sec = now_time.hour * 60 * 60 + now_time.minute * 60 + now_time.second
 
-    logger.info(f'collet wait until {agent_term - (time_elapse_sec % agent_term) + (agent_id % agent_term)} second')
+    logger.info(f'collect wait until {agent_term - (time_elapse_sec % agent_term) + (agent_id % agent_term)} second')
     standard_time = now_time + \
                     datetime.timedelta(seconds=agent_term - (time_elapse_sec % agent_term))
 
