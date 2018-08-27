@@ -1,9 +1,3 @@
-
-.idea/modules.xml
-.idea/Total-Server-Manage.iml
-.idea/vcs.xml
-.idea/workspace.xml
-__pycache__/statics.cpython-37.pyc
-.idea/misc.xml
-__pycache__/protocol_pb2.cpython-37.pyc
+.idea/*
+__pycache__/*
 *.log

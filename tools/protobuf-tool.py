@@ -1,9 +1,6 @@
 # created at 2018.07.27 by opendev-choi
 # Protobuf의 decode, encode를 편하게 할 수 있는 툴입니다.
 
-import re
-import struct
-
 import google
 import protocol_pb2
 

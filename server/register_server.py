@@ -8,8 +8,8 @@ from logging.handlers import TimedRotatingFileHandler
 import kafka
 import elasticsearch
 
-import statics
-import protocol_pb2
+from ..include import statics
+from ..include import protocol_pb2
 
 
 def kafka_produce(kafka_ip):

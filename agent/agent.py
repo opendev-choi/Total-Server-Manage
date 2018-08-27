@@ -16,9 +16,8 @@ import kafka
 import psutil
 import elasticsearch
 
-import statics
-import protocol_pb2
-
+from ..include import statics
+from ..include import protocol_pb2
 
 def cpu_perf():
     return psutil.cpu_percent(interval=1, percpu=True)
