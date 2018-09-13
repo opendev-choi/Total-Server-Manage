@@ -190,6 +190,7 @@ def initialize():
         logger.debug(f'elasticsearch config setted {es_config}')
         if 'agent_kafka_ip' not in es_config.keys():
             logger.error(f'elasticsearch config not setted! please set {es_ip}/config/doc/agent_kafka_ip')
+
             time.sleep(60)
 
     register_protobuf: protocol_pb2.agent_register = protocol_pb2.agent_register()

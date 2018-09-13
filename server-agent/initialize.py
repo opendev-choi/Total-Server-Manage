@@ -9,7 +9,7 @@ import os
 import sys
 import configparser
 
-import statics
+from include import statics
 
 if __name__ == '__main__':
     print(statics.headlines)

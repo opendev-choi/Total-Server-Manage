@@ -69,7 +69,8 @@ def get_last_seq():
         res = es.get(index="config", doc_type='doc', id='last_seq')
         return res['_source']['config_val']
     except elasticsearch.exceptions.NotFoundError:
-        return 0
+        es.index(index="config", doc_type='doc', id='last_seq', body='{"config_val":1}')
+        return 1
 
 
 def check_register(mac):

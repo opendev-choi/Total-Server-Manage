@@ -10,7 +10,7 @@ headlines: str = """
 Initialize Program...
 """
 
-config_file_name: str = "es-config.conf"
+config_file_name: str = "etc\\es-config.conf"
 
 default_config: str = """
 [elasticsearch]
