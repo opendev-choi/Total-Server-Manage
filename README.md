@@ -28,9 +28,17 @@ Agent - agent 실행
 
 데이터는 Elasticsearch 의 다음과 같은 인덱스에 들어가 있습니다.
 
-config - 상세 설정 정보 저장
-agent_list - 에이전트 리스트 저장
-agent_last_status - 에이전트의 최신 정보가 들어가 있습니다.
+
+
+| index             | value                         |
+|-------------------|-------------------------------|
+| config            | 상세 설정 정보 저장           |
+| agent_list        | 에이전트 리스트 저장          |
+| agent_last_status | 에이전트의 최신 정보가        |
+| agent_collect     | 에이전트의 분단위 수집 데이터 |
+
+## 예제 데이터
+* agent_last_status
 ```json
 {  
    "_index":"agent_last_status",
@@ -67,7 +75,7 @@ agent_last_status - 에이전트의 최신 정보가 들어가 있습니다.
    }
 }
 ```
-agent_collect - 에이전트의 수집 데이터가 들어가 있습니다.
+* agent_collect
 ```json
 {  
    "_index":"agent_collect",
