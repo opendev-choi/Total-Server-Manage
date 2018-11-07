@@ -52,13 +52,13 @@ agent_last_status - 에이전트의 최신 정보가 들어가 있습니다.
       "memoryUse":8369500160,
       "diskList":[  
          {  
-            "diskMount":"C:\", 
-"            diskTotal":"239011000320",
+            "diskMount":"C:\\", 
+            "diskTotal":"239011000320",
             "diskUse":"213363695616"
          },
          {  
-            "diskMount":"D:\", 
-"            diskTotal":"1000068870144",
+            "diskMount":"D:\\", 
+            "diskTotal":"1000068870144",
             "diskUse":"674538033152"
          }
       ],
@@ -89,13 +89,13 @@ agent_collect - 에이전트의 수집 데이터가 들어가 있습니다.
       "memoryUse":8305950720,
       "diskList":[  
          {  
-            "diskMount":"C:\", 
-"            diskTotal":"239011000320",
+            "diskMount":"C:\\", 
+            "diskTotal":"239011000320",
             "diskUse":"213363994624"
          },
          {  
-            "diskMount":"D:\", 
-"            diskTotal":"1000068870144",
+            "diskMount":"D:\\", 
+            "diskTotal":"1000068870144",
             "diskUse":"674538033152"
          }
       ],
