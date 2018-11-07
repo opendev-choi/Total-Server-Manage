@@ -1,2 +1,0 @@
-class PerfFailException(Exception):
-    pass

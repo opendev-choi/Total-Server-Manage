@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+// BUILD protoc -I=$SRC_DIR --python_out=$DST_DIR $SRC_DIR/addressbook.proto
+// BUILD protoc -I=. --python_out=. protocol.proto
+
+
+/*
+서버 상태를 전송하는 프로토콜
+Mac 주소를 키로 사용함
+Float 는 소수점 2자리까지 사용
+*/
+message server_status {
+  message disk {
+    string disk_mount = 1;
+    uint64 disk_total = 2;
+    uint64 disk_use = 3;
+  }
+  int32 agent_id = 1;
+  string ip = 2;
+  string hostname = 3;
+  repeated float cpu_idle_rate = 4;  // CPU 는 여러개일 수 있으므로 repeated 로 처리
+  float memory_total = 5;
+  float memory_use = 6;
+  repeated disk disk_list = 7; // disk 는 partion, 용량으로 구성
+  string collection_time = 8; // YYYYMMDDHHMMSS
+}
+
+/*
+에이전트 실행시 최초 등록하는 프로토콜
+서버에서 mac 을 받아 등록한 뒤 agent_id 를 반환한다
+agent_id 는 sequential하게 증가한다
+*/
+message agent_register {
+  string mac = 1;
+}
+
+/*
+에이전트 등록 후 돌아오는 프로토콜
+agent_id 는 sequential 하게 계산하여 return 함
+*/
+message agent_register_reply {
+  int32 agent_id = 1;
+}
